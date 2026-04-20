@@ -1,0 +1,21 @@
+{
+  "pipeline": "SAP BDC Sales Analytics ETL",
+  "duration_seconds": 0.18,
+  "records_extracted": {
+    "sales_orders": 2459,
+    "customers": 15,
+    "products": 10
+  },
+  "records_loaded": {
+    "fact_sales": 2459,
+    "dim_customer": 15,
+    "dim_product": 10
+  },
+  "kpis": {
+    "total_revenue": 797617875.0,
+    "total_orders": 2459,
+    "fulfillment_rate": 64.74
+  },
+  "timestamp": "2026-04-16 19:43:09",
+  "status": "SUCCESS"
+}

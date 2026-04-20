@@ -1,0 +1,55 @@
+{
+  "total_revenue": 797617875.0,
+  "total_orders": 2459,
+  "delivered_orders": 1592,
+  "cancelled_orders": 117,
+  "unique_customers": 15,
+  "avg_order_value": 340571.25,
+  "revenue_by_region": {
+    "Central": 111292575.0,
+    "East": 52616400.0,
+    "North": 350279300.0,
+    "South": 231244200.0,
+    "West": 52185400.0
+  },
+  "revenue_by_category": {
+    "Electronics": 529342675.0,
+    "Furniture": 268275200.0
+  },
+  "revenue_by_month": {
+    "April": 71510700.0,
+    "August": 72024875.0,
+    "December": 70753325.0,
+    "February": 57086800.0,
+    "January": 64529725.0,
+    "July": 63362225.0,
+    "June": 60072525.0,
+    "March": 64253075.0,
+    "May": 72396000.0,
+    "November": 71850075.0,
+    "October": 59205650.0,
+    "September": 70572900.0
+  },
+  "revenue_by_quarter": {
+    "Q1": 185869600.0,
+    "Q2": 203979225.0,
+    "Q3": 205960000.0,
+    "Q4": 201809050.0
+  },
+  "top_customers": {
+    "HDFC Bank": 61633850.0,
+    "Tata Motors": 59233000.0,
+    "Paytm Services": 56315775.0,
+    "Zomato Ltd": 56008825.0,
+    "Flipkart Pvt Ltd": 55283750.0
+  },
+  "top_products": {
+    "Laptop Pro 15": 179090750.0,
+    "Smartphone X12": 148590000.0,
+    "Conference Table": 119286750.0,
+    "Tablet Air": 103680000.0,
+    "Standing Desk": 71443750.0
+  },
+  "order_fulfillment_rate": 64.74,
+  "generated_at": "2026-04-16 19:43:09"
+}

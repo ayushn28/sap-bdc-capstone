@@ -1,0 +1,16 @@
+customer_id,customer_name,region,city,segment,credit_limit,currency,active,dim_customer_key,load_timestamp
+C0001,Infosys Ltd,North,Bengaluru,Enterprise,5000000.0,INR,True,1,2026-04-16 19:43:09
+C0002,TCS Technologies,North,Mumbai,Enterprise,5000000.0,INR,True,2,2026-04-16 19:43:09
+C0003,Wipro Solutions,East,Pune,Enterprise,500000.0,INR,True,3,2026-04-16 19:43:09
+C0004,Reliance Retail,South,Mumbai,Retail,1000000.0,INR,True,4,2026-04-16 19:43:09
+C0005,HDFC Bank,South,Mumbai,BFSI,1000000.0,INR,True,5,2026-04-16 19:43:09
+C0006,Tata Motors,South,Pune,Manufacturing,500000.0,INR,True,6,2026-04-16 19:43:09
+C0007,Mahindra Group,North,Mumbai,Manufacturing,2000000.0,INR,True,7,2026-04-16 19:43:09
+C0008,Flipkart Pvt Ltd,Central,Bengaluru,E-Commerce,500000.0,INR,True,8,2026-04-16 19:43:09
+C0009,Amazon India,North,Hyderabad,E-Commerce,2000000.0,INR,True,9,2026-04-16 19:43:09
+C0010,Zomato Ltd,Central,Gurugram,Food-Tech,5000000.0,INR,True,10,2026-04-16 19:43:09
+C0011,Ola Cabs,West,Bengaluru,Transport,500000.0,INR,True,11,2026-04-16 19:43:09
+C0012,Byju's Learning,North,Bengaluru,EdTech,5000000.0,INR,True,12,2026-04-16 19:43:09
+C0013,Nykaa Fashion,North,Mumbai,Retail,2000000.0,INR,True,13,2026-04-16 19:43:09
+C0014,Swiggy India,North,Bengaluru,Food-Tech,2000000.0,INR,True,14,2026-04-16 19:43:09
+C0015,Paytm Services,South,Noida,FinTech,2000000.0,INR,True,15,2026-04-16 19:43:09

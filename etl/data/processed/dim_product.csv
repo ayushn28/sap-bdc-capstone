@@ -1,0 +1,11 @@
+product_id,product_name,category,base_price,currency,unit_of_measure,active,dim_product_key,load_timestamp
+P001,Laptop Pro 15,Electronics,85000.0,INR,EA,True,1,2026-04-16 19:43:09
+P002,Wireless Headphones,Electronics,8500.0,INR,EA,True,2,2026-04-16 19:43:09
+P003,Office Chair Ergonomic,Furniture,22000.0,INR,EA,True,3,2026-04-16 19:43:09
+P004,Standing Desk,Furniture,35000.0,INR,EA,True,4,2026-04-16 19:43:09
+P005,Smartphone X12,Electronics,65000.0,INR,EA,True,5,2026-04-16 19:43:09
+P006,Tablet Air,Electronics,45000.0,INR,EA,True,6,2026-04-16 19:43:09
+P007,Mechanical Keyboard,Electronics,7500.0,INR,EA,True,7,2026-04-16 19:43:09
+P008,LED Monitor 27inch,Electronics,28000.0,INR,EA,True,8,2026-04-16 19:43:09
+P009,Filing Cabinet,Furniture,12000.0,INR,EA,True,9,2026-04-16 19:43:09
+P010,Conference Table,Furniture,55000.0,INR,EA,True,10,2026-04-16 19:43:09

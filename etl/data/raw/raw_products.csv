@@ -1,0 +1,11 @@
+product_id,product_name,category,base_price,currency,unit_of_measure,active
+P001,Laptop Pro 15,Electronics,85000,INR,EA,True
+P002,Wireless Headphones,Electronics,8500,INR,EA,True
+P003,Office Chair Ergonomic,Furniture,22000,INR,EA,True
+P004,Standing Desk,Furniture,35000,INR,EA,True
+P005,Smartphone X12,Electronics,65000,INR,EA,True
+P006,Tablet Air,Electronics,45000,INR,EA,True
+P007,Mechanical Keyboard,Electronics,7500,INR,EA,True
+P008,LED Monitor 27inch,Electronics,28000,INR,EA,True
+P009,Filing Cabinet,Furniture,12000,INR,EA,True
+P010,Conference Table,Furniture,55000,INR,EA,True

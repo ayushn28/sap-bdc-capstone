@@ -1,0 +1,35 @@
+{
+  "project": {
+    "name": "SAP BDC Sales Revenue Analytics",
+    "version": "1.0.0",
+    "author": "Student Capstone Project",
+    "module": "SAP Business Data Cloud"
+  },
+  "datasphere": {
+    "space_id": "SALES_ANALYTICS",
+    "schema": "BDC_CAPSTONE",
+    "connection_type": "JDBC",
+    "host": "your-datasphere-tenant.hana.ondemand.com",
+    "port": 443
+  },
+  "s4hana_source": {
+    "system": "S4H_PRD",
+    "client": "100",
+    "tables": ["VBAK", "VBAP", "KNA1", "MARA", "KONV"],
+    "delta_field": "AEDAT"
+  },
+  "etl": {
+    "batch_size": 5000,
+    "schedule": "0 2 * * *",
+    "data_path": "./data",
+    "log_level": "INFO"
+  },
+  "kpis": [
+    "total_revenue",
+    "revenue_by_region",
+    "revenue_by_product",
+    "monthly_growth_rate",
+    "top_customers",
+    "order_fulfillment_rate"
+  ]
+}

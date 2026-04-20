@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>SAP BDC — Sales Revenue Analytics Dashboard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root {
+    --sap-blue: #0070F2;
+    --sap-dark: #1C2B36;
+    --sap-shell: #243745;
+    --sap-accent: #00A0E0;
+    --sap-green: #30914C;
+    --sap-orange: #E76500;
+    --sap-red: #BB0000;
+    --sap-gray: #F5F6F7;
+    --card-bg: #FFFFFF;
+    --text-primary: #1D2D3E;
+    --text-muted: #6B7C93;
+    --border: #E0E5EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: "72", "72full", Arial, sans-serif; background: var(--sap-gray); color: var(--text-primary); }
+
+  /* Shell Bar */
+  .shell-bar {
+    background: var(--sap-shell);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 48px;
+    gap: 16px;
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
+    position: sticky; top: 0; z-index: 100;
+  }
+  .shell-logo { font-size: 18px; font-weight: 700; letter-spacing: -0.5px; }
+  .shell-logo span { color: var(--sap-accent); }
+  .shell-title { font-size: 14px; color: #aac4d8; border-left: 1px solid #3a5268; padding-left: 16px; }
+  .shell-spacer { flex: 1; }
+  .shell-badge { background: var(--sap-blue); border-radius: 12px; padding: 2px 10px; font-size: 11px; }
+
+  /* Sub Header */
+  .sub-header {
+    background: #fff;
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .page-title { font-size: 20px; font-weight: 700; color: var(--text-primary); }
+  .sub-header select {
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--text-primary);
+    background: #fff;
+    cursor: pointer;
+    outline: none;
+  }
+  .sub-header select:focus { border-color: var(--sap-blue); }
+  .filter-label { font-size: 13px; color: var(--text-muted); }
+  .last-refresh { margin-left: auto; font-size: 12px; color: var(--text-muted); }
+
+  /* Main */
+  .main { padding: 20px 24px; max-width: 1400px; margin: auto; }
+
+  /* KPI Cards */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .kpi-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,.1); }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--accent-color, var(--sap-blue));
+  }
+  .kpi-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 8px; }
+  .kpi-value { font-size: 28px; font-weight: 700; color: var(--text-primary); line-height: 1; }
+  .kpi-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+  .kpi-trend { font-size: 12px; font-weight: 600; margin-top: 6px; }
+  .trend-up { color: var(--sap-green); }
+  .trend-down { color: var(--sap-red); }
+
+  /* Chart Grid */
+  .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 24px; }
+  .chart-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+  }
+  .chart-card.wide { grid-column: span 2; }
+  .chart-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); }
+  .chart-subtitle { font-size: 11px; color: var(--text-muted); }
+  .chart-wrap { position: relative; height: 260px; }
+
+  /* Table */
+  .table-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+  }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: #f0f4f8;
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .5px;
+    color: var(--text-muted);
+    border-bottom: 2px solid var(--border);
+  }
+  .data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  .data-table tr:last-child td { border-bottom: none; }
+  .data-table tr:hover td { background: #f8fbff; }
+  .status-badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .badge-delivered { background: #e6f4ea; color: #1e7e34; }
+  .badge-transit { background: #fff3cd; color: #856404; }
+  .badge-processing { background: #cce5ff; color: #004085; }
+  .badge-cancelled { background: #f8d7da; color: #721c24; }
+
+  /* Progress bar */
+  .progress-bar { background: #e9ecef; border-radius: 4px; height: 6px; margin-top: 4px; }
+  .progress-fill { height: 6px; border-radius: 4px; background: var(--sap-blue); }
+
+  @media (max-width: 900px) {
+    .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
+    .chart-card.wide { grid-column: span 1; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Shell Bar -->
+<div class="shell-bar">
+  <div class="shell-logo">SAP <span>BDC</span></div>
+  <div class="shell-title">Sales Revenue Analytics Platform</div>
+  <div class="shell-spacer"></div>
+  <div class="shell-badge">Datasphere</div>
+  <div class="shell-badge">Live</div>
+</div>
+
+<!-- Sub Header / Filters -->
+<div class="sub-header">
+  <div class="page-title">Revenue Dashboard — FY 2024</div>
+  <span class="filter-label">Filter by:</span>
+  <select id="filterRegion" onchange="applyFilters()">
+    <option value="All">All Regions</option>
+    <option value="North">North</option>
+    <option value="South">South</option>
+    <option value="East">East</option>
+    <option value="West">West</option>
+    <option value="Central">Central</option>
+  </select>
+  <select id="filterCategory" onchange="applyFilters()">
+    <option value="All">All Categories</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Furniture">Furniture</option>
+  </select>
+  <select id="filterQuarter" onchange="applyFilters()">
+    <option value="All">All Quarters</option>
+    <option value="Q1">Q1</option>
+    <option value="Q2">Q2</option>
+    <option value="Q3">Q3</option>
+    <option value="Q4">Q4</option>
+  </select>
+  <span class="last-refresh" id="lastRefresh"></span>
+</div>
+
+<!-- Main Content -->
+<div class="main">
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid">
+    <div class="kpi-card" style="--accent-color: #0070F2">
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-value" id="kpiRevenue">₹0</div>
+      <div class="kpi-sub">INR — FY 2024</div>
+      <div class="kpi-trend trend-up" id="kpiRevTrend"></div>
+    </div>
+    <div class="kpi-card" style="--accent-color: #30914C">
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value" id="kpiOrders">0</div>
+      <div class="kpi-sub">Sales Orders processed</div>
+      <div class="kpi-trend trend-up" id="kpiOrderTrend"></div>
+    </div>
+    <div class="kpi-card" style="--accent-color: #E76500">
+      <div class="kpi-label">Fulfillment Rate</div>
+      <div class="kpi-value" id="kpiFulfill">0%</div>
+      <div class="kpi-sub">Orders delivered</div>
+    </div>
+    <div class="kpi-card" style="--accent-color: #00A0E0">
+      <div class="kpi-label">Avg Order Value</div>
+      <div class="kpi-value" id="kpiAOV">₹0</div>
+      <div class="kpi-sub">Per eligible order</div>
+    </div>
+    <div class="kpi-card" style="--accent-color: #6A2C91">
+      <div class="kpi-label">Active Customers</div>
+      <div class="kpi-value" id="kpiCustomers">0</div>
+      <div class="kpi-sub">Unique buyers</div>
+    </div>
+  </div>
+
+  <!-- Row 1: Monthly Trend + Region Donut -->
+  <div class="chart-grid">
+    <div class="chart-card wide">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">Monthly Revenue Trend</div>
+          <div class="chart-subtitle">Net revenue (INR) — eligible orders only</div>
+        </div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartMonthly"></canvas></div>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Revenue by Region</div><div class="chart-subtitle">Share of total revenue</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartRegion"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Revenue by Category</div><div class="chart-subtitle">Electronics vs Furniture</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartCategory"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Row 3: Top Products + Top Customers -->
+  <div class="chart-grid">
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Top 5 Products by Revenue</div><div class="chart-subtitle">Net revenue contribution</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartProducts"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <div><div class="chart-title">Top 5 Customers by Revenue</div><div class="chart-subtitle">Customer revenue ranking</div></div>
+      </div>
+      <div class="chart-wrap"><canvas id="chartCustomers"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Order Status Table -->
+  <div class="table-card">
+    <div class="chart-header">
+      <div>
+        <div class="chart-title">Order Status Breakdown</div>
+        <div class="chart-subtitle">Distribution of order statuses across the filtered dataset</div>
+      </div>
+    </div>
+    <table class="data-table" id="statusTable">
+      <thead><tr><th>Status</th><th>Order Count</th><th>Share</th><th>Gross Value (₹)</th><th>Distribution</th></tr></thead>
+      <tbody id="statusTableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<script>
+// ─── DATA GENERATION ──────────────────────────────────────────────────────────
+// Simulates what the BDC ETL pipeline outputs into processed/kpis.json
+
+const REGIONS = ["North","South","East","West","Central"];
+const PRODUCTS = [
+  {id:"P001",name:"Laptop Pro 15",cat:"Electronics",price:85000},
+  {id:"P002",name:"Wireless Headphones",cat:"Electronics",price:8500},
+  {id:"P003",name:"Office Chair Ergonomic",cat:"Furniture",price:22000},
+  {id:"P004",name:"Standing Desk",cat:"Furniture",price:35000},
+  {id:"P005",name:"Smartphone X12",cat:"Electronics",price:65000},
+  {id:"P006",name:"Tablet Air",cat:"Electronics",price:45000},
+  {id:"P007",name:"Mechanical Keyboard",cat:"Electronics",price:7500},
+  {id:"P008",name:"LED Monitor 27inch",cat:"Electronics",price:28000},
+  {id:"P009",name:"Filing Cabinet",cat:"Furniture",price:12000},
+  {id:"P010",name:"Conference Table",cat:"Furniture",price:55000},
+];
+const CUSTOMERS = [
+  {id:"C0001",name:"Infosys Ltd",seg:"Enterprise",region:"South"},
+  {id:"C0002",name:"TCS Technologies",seg:"Enterprise",region:"West"},
+  {id:"C0003",name:"Wipro Solutions",seg:"Enterprise",region:"West"},
+  {id:"C0004",name:"Reliance Retail",seg:"Retail",region:"West"},
+  {id:"C0005",name:"HDFC Bank",seg:"BFSI",region:"West"},
+  {id:"C0006",name:"Tata Motors",seg:"Manufacturing",region:"West"},
+  {id:"C0007",name:"Mahindra Group",seg:"Manufacturing",region:"West"},
+  {id:"C0008",name:"Flipkart Pvt Ltd",seg:"E-Commerce",region:"South"},
+  {id:"C0009",name:"Amazon India",seg:"E-Commerce",region:"South"},
+  {id:"C0010",name:"Zomato Ltd",seg:"Food-Tech",region:"North"},
+  {id:"C0011",name:"Ola Cabs",seg:"Transport",region:"South"},
+  {id:"C0012",name:"Byju's Learning",seg:"EdTech",region:"South"},
+  {id:"C0013",name:"Nykaa Fashion",seg:"Retail",region:"West"},
+  {id:"C0014",name:"Swiggy India",seg:"Food-Tech",region:"South"},
+  {id:"C0015",name:"Paytm Services",seg:"FinTech",region:"North"},
+];
+
+function seededRand(seed) {
+  let s = seed;
+  return () => { s = (s * 16807 + 0) % 2147483647; return (s - 1) / 2147483646; };
+}
+
+function generateOrders() {
+  const rng = seededRand(42);
+  const orders = [];
+  let orderId = 1000;
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  for (let m = 0; m < 12; m++) {
+    const daysInMonth = [31,29,31,30,31,30,31,31,30,31,30,31][m];
+    for (let d = 1; d <= daysInMonth; d++) {
+      const isWeekend = ((d + m * 3) % 7 >= 5);
+      const nOrders = isWeekend ? Math.floor(rng() * 4) + 1 : Math.floor(rng() * 9) + 4;
+      for (let o = 0; o < nOrders; o++) {
+        const cust = CUSTOMERS[Math.floor(rng() * CUSTOMERS.length)];
+        const prod = PRODUCTS[Math.floor(rng() * PRODUCTS.length)];
+        const qty = Math.floor(rng() * 20) + 1;
+        const discOpts = [0, 5, 10, 15, 20];
+        const disc = discOpts[Math.floor(rng() * discOpts.length)];
+        const unitPrice = prod.price * (1 - disc / 100);
+        const netValue = Math.round(unitPrice * qty);
+        const r = rng();
+        const status = r < 0.65 ? "Delivered" : r < 0.80 ? "In Transit" : r < 0.95 ? "Processing" : "Cancelled";
+        const q = Math.floor(m / 3) + 1;
+        orders.push({
+          orderId: `SO${orderId++}`,
+          month: m, monthName: months[m], quarter: q,
+          custId: cust.id, custName: cust.name, region: cust.region, segment: cust.seg,
+          prodId: prod.id, prodName: prod.name, category: prod.cat,
+          qty, unitPrice, disc, netValue,
+          status,
+          revenue: status === "Cancelled" ? 0 : netValue
+        });
+      }
+    }
+  }
+  return orders;
+}
+
+const ALL_ORDERS = generateOrders();
+
+// ─── CHART INSTANCES ────────────────────────────────────────────
+let charts = {};
+const COLORS = {
+  blue: "#0070F2", green: "#30914C", orange: "#E76500",
+  teal: "#00A0E0", purple: "#6A2C91", red: "#BB0000",
+  gold: "#D4A017", pink: "#D63384",
+};
+const PALETTE = Object.values(COLORS);
+
+function fmt(n) {
+  if (n >= 10000000) return "₹" + (n/10000000).toFixed(1) + "Cr";
+  if (n >= 100000) return "₹" + (n/100000).toFixed(1) + "L";
+  return "₹" + n.toLocaleString("en-IN");
+}
+
+function fmtFull(n) {
+  return "₹" + n.toLocaleString("en-IN", {maximumFractionDigits:0});
+}
+
+function makeChart(id, config) {
+  if (charts[id]) charts[id].destroy();
+  charts[id] = new Chart(document.getElementById(id), config);
+}
+
+function applyFilters() {
+  const region = document.getElementById("filterRegion").value;
+  const cat = document.getElementById("filterCategory").value;
+  const qtr = document.getElementById("filterQuarter").value;
+
+  let filtered = ALL_ORDERS.filter(o => {
+    if (region !== "All" && o.region !== region) return false;
+    if (cat !== "All" && o.category !== cat) return false;
+    if (qtr !== "All" && "Q"+o.quarter !== qtr) return false;
+    return true;
+  });
+
+  renderDashboard(filtered);
+}
+
+function renderDashboard(orders) {
+  const eligible = orders.filter(o => o.status !== "Cancelled");
+  const totalRev = eligible.reduce((s, o) => s + o.revenue, 0);
+  const totalOrders = orders.length;
+  const delivered = orders.filter(o => o.status === "Delivered").length;
+  const fulfillRate = totalOrders ? (delivered / totalOrders * 100).toFixed(1) : 0;
+  const avgOV = eligible.length ? Math.round(totalRev / eligible.length) : 0;
+  const uniqCustomers = new Set(orders.map(o => o.custId)).size;
+
+  // KPIs
+  document.getElementById("kpiRevenue").textContent = fmt(totalRev);
+  document.getElementById("kpiOrders").textContent = totalOrders.toLocaleString();
+  document.getElementById("kpiFulfill").textContent = fulfillRate + "%";
+  document.getElementById("kpiAOV").textContent = fmt(avgOV);
+  document.getElementById("kpiCustomers").textContent = uniqCustomers;
+
+  // Monthly Revenue
+  const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+  const monthlyRev = months.map((_,i) =>
+    eligible.filter(o => o.month === i).reduce((s, o) => s + o.revenue, 0)
+  );
+  makeChart("chartMonthly", {
+    type: "bar",
+    data: {
+      labels: months,
+      datasets: [{
+        label: "Revenue (INR)",
+        data: monthlyRev,
+        backgroundColor: months.map((_, i) => i % 2 === 0 ? COLORS.blue + "CC" : COLORS.teal + "CC"),
+        borderRadius: 4,
+        borderSkipped: false,
+      }, {
+        type: "line",
+        label: "Trend",
+        data: monthlyRev,
+        borderColor: COLORS.orange,
+        backgroundColor: "transparent",
+        borderWidth: 2,
+        pointRadius: 3,
+        tension: 0.4
+      }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+      scales: {
+        y: { ticks: { callback: v => fmt(v) }, grid: { color: "#f0f0f0" } },
+        x: { grid: { display: false } }
+      }
+    }
+  });
+
+  // Region
+  const regionMap = {};
+  REGIONS.forEach(r => regionMap[r] = 0);
+  eligible.forEach(o => { regionMap[o.region] = (regionMap[o.region]||0) + o.revenue; });
+  const rLabels = Object.keys(regionMap);
+  const rVals = rLabels.map(r => regionMap[r]);
+  makeChart("chartRegion", {
+    type: "doughnut",
+    data: {
+      labels: rLabels,
+      datasets: [{ data: rVals, backgroundColor: PALETTE.slice(0,5), borderWidth: 2 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "right", labels: { boxWidth: 12 } },
+        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } }
+    }
+  });
+
+  // Category
+  const catMap = {};
+  eligible.forEach(o => { catMap[o.category] = (catMap[o.category]||0) + o.revenue; });
+  makeChart("chartCategory", {
+    type: "pie",
+    data: {
+      labels: Object.keys(catMap),
+      datasets: [{ data: Object.values(catMap), backgroundColor: [COLORS.blue, COLORS.orange], borderWidth: 2 }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: "bottom" },
+        tooltip: { callbacks: { label: ctx => `${ctx.label}: ${fmt(ctx.raw)}` } } }
+    }
+  });
+
+  // Top Products
+  const prodMap = {};
+  eligible.forEach(o => { prodMap[o.prodName] = (prodMap[o.prodName]||0) + o.revenue; });
+  const topProds = Object.entries(prodMap).sort((a,b) => b[1]-a[1]).slice(0,5);
+  makeChart("chartProducts", {
+    type: "bar",
+    data: {
+      labels: topProds.map(([n]) => n.length > 18 ? n.slice(0,18)+"…" : n),
+      datasets: [{ data: topProds.map(([,v]) => v), backgroundColor: COLORS.blue + "CC", borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+      scales: { x: { ticks: { callback: v => fmt(v) }, grid: { color: "#f0f0f0" } }, y: { grid: { display: false } } }
+    }
+  });
+
+  // Top Customers
+  const custMap = {};
+  eligible.forEach(o => { custMap[o.custName] = (custMap[o.custName]||0) + o.revenue; });
+  const topCusts = Object.entries(custMap).sort((a,b) => b[1]-a[1]).slice(0,5);
+  makeChart("chartCustomers", {
+    type: "bar",
+    data: {
+      labels: topCusts.map(([n]) => n),
+      datasets: [{ data: topCusts.map(([,v]) => v), backgroundColor: COLORS.green + "CC", borderRadius: 4, borderSkipped: false }]
+    },
+    options: {
+      indexAxis: "y", responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => fmt(ctx.raw) } } },
+      scales: { x: { ticks: { callback: v => fmt(v) }, grid: { color: "#f0f0f0" } }, y: { grid: { display: false } } }
+    }
+  });
+
+  // Status Table
+  const statusGroups = {};
+  orders.forEach(o => {
+    if (!statusGroups[o.status]) statusGroups[o.status] = {count: 0, value: 0};
+    statusGroups[o.status].count++;
+    statusGroups[o.status].value += o.netValue;
+  });
+  const statusBadges = {
+    "Delivered": "badge-delivered", "In Transit": "badge-transit",
+    "Processing": "badge-processing", "Cancelled": "badge-cancelled"
+  };
+  const tbody = document.getElementById("statusTableBody");
+  tbody.innerHTML = "";
+  Object.entries(statusGroups).sort((a,b) => b[1].count - a[1].count).forEach(([status, d]) => {
+    const pct = (d.count / totalOrders * 100).toFixed(1);
+    tbody.innerHTML += `<tr>
+      <td><span class="status-badge ${statusBadges[status]||''}">${status}</span></td>
+      <td><strong>${d.count.toLocaleString()}</strong></td>
+      <td>${pct}%</td>
+      <td>${fmtFull(d.value)}</td>
+      <td><div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div></td>
+    </tr>`;
+  });
+}
+
+// ─── INIT ────────────────────────────────────────────────────────
+document.getElementById("lastRefresh").textContent =
+  "Last Refreshed: " + new Date().toLocaleString("en-IN", {dateStyle:"medium", timeStyle:"short"});
+
+renderDashboard(ALL_ORDERS);
+</script>
+</body>
+</html>
